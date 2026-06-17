@@ -1,4 +1,5 @@
 **Plataforma de gestão de recarga de veículos elétricos para condomínios**
+
 Enterprise Challenge 2026 · Parceria GoodWe × FIAP · Energy Innovation Lab
 
 ---
