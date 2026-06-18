@@ -7,28 +7,11 @@ Enterprise Challenge 2026 · Parceria GoodWe × FIAP · Energy Innovation Lab
 ## Equipe
 
 | Integrante | RM |
-| --- | --- |
-| [PREENCHER] | [PREENCHER] |
-| [PREENCHER] | [PREENCHER] |
-| [PREENCHER] | [PREENCHER] |
-| [PREENCHER] | [PREENCHER] |
-| [PREENCHER] | [PREENCHER] |
-
-**Equipe:** [PREENCHER NOME DA EQUIPE]
-
----
-
-## Sumário
-
-1. [O problema e o contexto]()
-2. [Frente 1 — Contexto e Problema]
-3. [Frente 2 — Base Regulatória e Técnica]
-4. [Frente 3 — Arquitetura e IA]()
-5. [Arquitetura da solução]()
-6. [Modelo de rateio]()
-7. [Papel da IA na solução]()
-8. [Plano da Sprint 02]()
-9. [Referências]()
+Eduardo Lopes da Silveira Mota -RM 563418
+Gabriel Luís de Lima Ramos - RM 568984
+Mayara Luisa Vicente Rosa - RM 571955
+Victor de Camargo Gomes - RM 568912
+Matheus Silveira - RM
 
 ---
 
@@ -44,11 +27,9 @@ O ponto de partida é simples: por que gerir a recarga de veículos elétricos e
 
 ### Opções de aprofundamento escolhidas
 
-| Frente | Itens obrigatórios | Aprofundamento escolhido |
-| --- | --- | --- |
-| **Frente 1** | Infraestrutura compartilhada, sessão de recarga, modelos de negócio | **A** (análise de mercado), **B** (pesquisa de campo) e **C** (análise de dados públicos) |
-| **Frente 2** | RN ANEEL 1.000/2021, interfaces HCA G2, API SEMS | **A** (mapeamento regulatório completo) e **B** (exploração da plataforma SEMS) |
-| **Frente 3** | Camadas, fluxo de dados, modelo de rateio | [DEFINIR — em andamento] |
+**Frente 1** Infraestrutura compartilhada, sessão de recarga, modelos de negócio - **A** (análise de mercado), **B** (pesquisa de campo) e **C** (análise de dados públicos) |
+**Frente 2** RN ANEEL 1.000/2021, interfaces HCA G2, API SEMS | **A** (mapeamento regulatório completo) e **B** (exploração da plataforma SEMS) |
+**Frente 3**  Camadas, fluxo de dados, modelo de rateio | [DEFINIR — em andamento] |
 
 ---
 
