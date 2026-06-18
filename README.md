@@ -6,11 +6,14 @@ Enterprise Challenge 2026 · Parceria GoodWe × FIAP · Energy Innovation Lab
 
 ## Equipe
 
-| Integrante | RM |
-Eduardo Lopes da Silveira Mota -RM 563418
+Eduardo Lopes da Silveira Mota - RM 563418
+
 Gabriel Luís de Lima Ramos - RM 568984
+
 Mayara Luisa Vicente Rosa - RM 571955
+
 Victor de Camargo Gomes - RM 568912
+
 Matheus Silveira - RM
 
 ---
