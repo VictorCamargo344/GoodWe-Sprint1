@@ -29,7 +29,7 @@ O **EV ChargeOps** (Electric Vehicle Charge Operations) é a resposta a esse pro
 > **A pergunta que organiza o projeto:** como transformar sessões de recarga em uma infraestrutura compartilhada em dados estruturados, rateio justo e inteligência acionável, com IA como motor lógico?
 **Decisões transversais do MVP** (definidas na Frente 3 e que orientam toda a solução):
 - **Cenário de referência:** carregador rotativo em condomínio, atendendo múltiplos moradores em um mesmo ponto físico — não o cenário simplificado de uma vaga por unidade. É o cenário que o desafio propõe e que a infraestrutura real do laboratório FIAP (HCA G2 instalado na Unidade Aclimação) reproduz.
-- **Comunicação:** ecossistema GoodWe (Modbus TCP localmente e API SEMS na nuvem), **sem OCPP** — o HCA G2 não o implementa. O OCPP fica registrado como vetor de evolução futura, não como compromisso arquitetural do MVP.
+- **Comunicação:** ecossistema GoodWe (Modbus TCP localmente e API SEMS na nuvem), **sem OCPP** o HCA G2 não o implementa. O OCPP fica registrado como vetor de evolução futura, não como compromisso arquitetural do MVP.
 - **Identificação do morador:** por **reserva prévia no aplicativo**, e não por cadastro individual de cartão RFID no firmware, contornando o limite de dez cartões por equipamento e preservando a escalabilidade para condomínios com dezenas de unidades.
 ---
 ## 2. Frente 1 — Contexto e Problema
