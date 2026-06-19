@@ -94,10 +94,14 @@ A fatura mensal de cada morador é a soma de todas as suas sessões válidas, co
 | **Energia verde** | kWh do campo *Green Charging* (SEMS) × preço Green da faixa horária da sessão |
 | **Energia da rede** | kWh do campo *Grid Charging* (SEMS) × preço Grid da faixa horária da sessão |
 | **Tempo de ociosidade** | Minutos após tolerância de 15 min do fim do fluxo de energia × taxa por minuto (assembleia) |
+
+-- 
+
 Sobre o subtotal incidem dois acréscimos: o **imposto** correspondente (ICMS, ISS ou IBS, conforme município e período da reforma tributária), destacado na fatura; e um **overhead operacional opcional**, percentual sobre o subtotal definido pela assembleia, que o condomínio pode zerar ou aplicar.
 As **faixas horárias** (ponta, intermediário e fora de ponta) e seus preços espelham a lógica da Tarifa Branca da ANEEL e são definidas pela assembleia.
 ### 6.3 Reembolso ao condomínio
 O condomínio paga à distribuidora a conta integral do mês. O valor arrecadado nas faturas individuais retorna ao caixa, **reembolsando exatamente o que foi gasto com a energia dos carros**. Resultado: quem não usa o carregador tem fatura zero (sem assinatura mínima), e a diluição na taxa condominial desaparece — o argumento que destrava a aprovação em assembleia deixa de ser promessa e passa a ser arquitetura.
+
 ### 6.4 Casos excepcionais
 | Caso | Tratamento |
 | --- | --- |
@@ -105,8 +109,12 @@ O condomínio paga à distribuidora a conta integral do mês. O valor arrecadado
 | **Morador que não carregou no mês** | **Fatura zero**, sem mensalidade mínima nem taxa de disponibilidade. O sistema não distingue quem não tem EV de quem viajou: cobra apenas onde houve uso. |
 | **Dois veículos da mesma unidade** | Cada morador é uma entidade individual, com cadastro, histórico e fatura próprios. Geram-se **duas faturas separadas**, atribuídas pelas reservas de cada um (consolidação em um pagador é preferência de pagamento, não de rateio). |
 | **No-show de reserva** | Cartão não encostado em 20 min → reserva cancelada automaticamente e ponto liberado. Três no-shows em 30 dias → bloqueio temporário do direito de reservar (consequência comportamental, não financeira). |
+
+---
 ### 6.5 Identificação e limite de cartões
+
 O **cartão físico RFID** é um recurso compartilhado do condomínio (até 10 por carregador, custodiados pelo síndico). A **identidade do morador** vive no aplicativo, vinculada à reserva. O cruzamento entre reserva ativa e início de sessão (timestamp + Card ID) atribui a sessão à pessoa correta, escalando para qualquer número de moradores. Como rede de segurança, qualquer sessão sem reserva correspondente é atribuída ao dono cadastrado do cartão, evitando sessões órfãs.
+
 ---
 ## 7. O papel da IA na solução
 A IA é adotada como **camada funcional estrutural, não decorativa**: cada técnica precisa atacar uma dor concreta que, sem ela, ficaria mal resolvida. Sob esse critério, **duas abordagens** se justificam, ambas operando sobre os dados que a SEMS e o gateway já entregam — sem instrumentação adicional. O detalhamento completo está no documento de apoio **`Papel_da_IA.docx`**.
@@ -120,8 +128,11 @@ A IA é adotada como **camada funcional estrutural, não decorativa**: cada téc
 **Técnica:** modelos não supervisionados de detecção de outliers (**Isolation Forest** e **Local Outlier Factor**, via PyOD e scikit-learn), que aprendem o normal a partir do histórico da planta sem exigir rótulos de fraude prévios.
 **Dados:** kWh, duração, potência média/máxima, razão kWh/duração, faixa horária, Card ID e curva de potência.
 **Impacto:** sessão anômala é bloqueada antes de entrar na fatura e fica suspensa para revisão humana, protegendo a integridade da cobrança e construindo a **trilha auditável exigida pela LGPD (art. 20)**.
+
 ### 7.3 Por que essas duas, e não outras
+
 Ambas (a) operam sobre dados já disponíveis, (b) são centrais ao produto — sem a previsão, a tarifação horária perde efetividade; sem a detecção, a memória de cálculo deixa de ser confiável — e (c) são explicáveis, compatíveis com a LGPD. Clustering de perfis e chatbot por NLP foram considerados e descartados por ganho marginal ou risco de cair no critério de "decorativo".
+
 ---
 ## 8. Plano para a Sprint 02
 
@@ -130,45 +141,84 @@ Ambas (a) operam sobre dados já disponíveis, (b) são centrais ao produto — 
 
 ---
 ## 9. Fontes consultadas
-Todas as fontes abaixo foram efetivamente consultadas pela equipe. As referências completas de cada frente estão nos documentos `EV_ChargeOps_Frente1.docx`, `EV_ChargeOps_Frente2.docx` e `Frente_3_Arquitetura_e_IA.docx`.
+Todas as fontes abaixo foram efetivamente consultadas pela equipe e correspondem às referências dos três documentos de pesquisa (Frentes 1, 2 e 3). Datas de acesso entre junho de 2026, conforme registrado em cada frente.
+
+### 9.1 Frente 1 — Contexto e Problema
+
 **Frota, mercado e infraestrutura**
-- ABVE — Associação Brasileira do Veículo Elétrico. Dados de frota e expansão da rede de recarga (2025–2026). https://abve.org.br
-- McKinsey & Company. *Recarregar para crescer: o futuro da infraestrutura de recarga de veículos elétricos no Brasil* (2025). https://www.mckinsey.com/br/our-insights/all-insights/recarregar-para-crescer
-- NeoCharge / Senatran. Crescimento e composição da frota de eletrificados. https://www.neocharge.com.br
-- Tupi Mobilidade; Elétricos Brasil. Base de eletropostos e tempos de recarga.
-**Soluções de mercado (benchmark)**
-- Zaptec. *Zaptec Pro — Load and phase balancing for shared charging*. https://www.zaptec.com
-- Wallbox. *Pulsar Plus / myWallbox*. https://wallbox.com
-- ChargePoint. *Per-kWh billing and multifamily solutions*. https://www.chargepoint.com
-- EMEL / LEVE. Operadora de pontos de carregamento de Lisboa (rede MOBI.E).
-**Regulação setorial e energia**
-- ANEEL. Resolução Normativa nº 1.000/2021. https://www2.aneel.gov.br/cedoc/ren20211000.html
-- ANEEL. Resolução Normativa nº 1.059/2023. https://www2.aneel.gov.br/cedoc/ren20231059.html
-- BRASIL. Lei nº 14.300/2022 (Marco Legal da Geração Distribuída).
-- ANEEL. Tarifa Branca. https://www.gov.br/aneel/pt-br/assuntos/tarifas/tarifa-branca/introducao
-**Tributação**
-- BRASIL. Lei Complementar nº 116/2003 (item 14.01, ISS); Súmula 391 do STJ.
-- BRASIL. Emenda Constitucional nº 132/2023; Lei Complementar nº 214/2025 (art. 28); Decreto nº 12.955/2026 (art. 15). https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/decreto/d12955.htm
-- Sefaz-SP. Respostas a Consulta RC 30579/2024 e RC 31007/2024.
-**Condominial e civil**
-- BRASIL. Lei nº 10.406/2002 (Código Civil — condomínio edilício, arts. 1.331 e ss., 1.340, 1.342).
+- ABVE. *Recarga pública rápida cresce 167% em 12 meses e já atinge 31% dos 21 mil eletropostos da rede*. Associação Brasileira do Veículo Elétrico, 2026. https://abve.org.br/recarga-publica-rapida-cresce-167-em-12-meses-e-ja-atinge-31-dos-21-mil-eletropostos-da-rede/
+- AUTOINDÚSTRIA. *Já são 21 mil pontos de recarga de carro elétrico no Brasil*, 4 mar. 2026. https://www.autoindustria.com.br/2026/03/04/ja-sao-21-mil-postos-de-recarga-de-carro-eletrico-no-brasil/
+- CANALVE. *Frota de eletrificados no Brasil ultrapassa 700 mil unidades (ABVE)*, 2026. https://canalve.com.br/frota-eletrificados-brasil-ultrapassa-700-mil-unidades/
+- CANALVE. *Frota de eletrificados no Brasil cresce 28% no primeiro semestre (NeoCharge/Senatran)*, 2025. https://canalve.com.br/frota-eletrificados-brasil-cresce-28-primeiro-semestre/
+- ELÉTRICOS BRASIL. *Mapa de eletropostos e tipos de recarga*. https://www.eletricos.app/mapa-eletropostos
+- GAZETA DO POVO. *Rede de recarga avança no Brasil para acompanhar a alta dos elétricos*, 2026. https://www.gazetadopovo.com.br/energia/carros-eletricos-rede-recarga-avanca-brasil-acompanhar-alta/
+- GAZETA DO POVO. *Como o Brasil está expandindo a rede de recarga para carros elétricos*, 2026. https://www.gazetadopovo.com.br/energia/como-o-brasil-esta-expandindo-a-rede-de-recarga-para-carros-eletricos/
+- McKINSEY & COMPANY. *Recarregar para crescer: o futuro da infraestrutura de recarga de veículos elétricos no Brasil*, 2025. https://www.mckinsey.com/br/our-insights/all-insights/recarregar-para-crescer
+- TERRA. *Brasil rompe a barreira dos 20 mil eletropostos com salto histórico na recarga rápida (ABVE)*, 2026.
+
+**Tarifa Branca e gestão de carga**
+- AGÊNCIA INFRA. *Área técnica da ANEEL propõe Tarifa Branca automática a partir de 2026*, 6 nov. 2025. https://agenciainfra.com/blog/area-tecnica-da-aneel-propoe-tarifa-branca-automatica-a-partir-de-2026/
+- ANEEL. *Tarifa Branca: introdução*. https://www.gov.br/aneel/pt-br/assuntos/tarifas/tarifa-branca/introducao
+- CANAL SOLAR. *Tarifa branca: conceitos e especificações na medição de energia elétrica*, 20 maio 2025. https://canalsolar.com.br/tarifa-branca-conceitos-e-especificacoes-na-medicao-de-energia-eletrica/
+- EDP BRASIL. *Tarifa branca*. https://www.edp.com.br/tarifa-branca/
+- ENEL. *Tarifa Branca — Enel Distribuição São Paulo*. https://www.enel.com.br/pt-saopaulo/tarifa-branca.html
+- ELETRICPAY. *Balanceamento de carga para carregamento de veículos em condomínios*. https://eletricpay.com/balanceamento-de-carga-para-carregamento-de-veiculos-em-condominios/
+
+**Condomínio, jurisprudência e OCPP**
+- CHARGEGURU. *Carregamento de veículos elétricos em condomínios*, 2026. https://chargeguru.com/pt/carregamento-em-condominios/
+- CONSULTOR JURÍDICO (CONJUR). *Instalação de carregador de carro elétrico em prédio exige aprovação de assembleia*, 18 jan. 2024. https://www.conjur.com.br/2024-jan-18/instalacao-de-carregador-de-carro-eletrico-em-predio-exige-aprovacao-de-assembleia/
+- MIGALHAS. *Moradora não pode instalar carregador veicular sem aval de condomínio*, 19 nov. 2025. https://www.migalhas.com.br/quentes/444793/moradora-nao-pode-instalar-carregador-veicular-sem-aval-de-condominio
+- NEOCHARGE. *OCPP — Protocolo de Ponto de Carga Aberto*. https://www.neocharge.com.br/tudo-sobre/carregador-carro-eletrico/protocolo-ocpp
+- NICAIRA RODRIGUES ADVOCACIA. *Carregador de carro elétrico em condomínio: guia completo para síndicos*, 11 ago. 2025. https://nicairarodriguesadvocacia.com.br/carregador-de-carro-eletrico-em-condominio-guia-completo-para-sindicos/
+- O ELECTRICISTA. *As soluções de carregamento OCPP da TEV*, 4 mar. 2026. https://www.oelectricista.pt/as-solucoes-de-carregamento-ocpp-da-tev/
+- POWER2GO. *FAQ — Instalação de carregadores para veículos elétricos em condomínios*, 27 jun. 2025. https://www.power2go.com.br/post/faq-instalação-de-carregadores-para-veículos-elétricos-em-condomínios
+- SINDICONET. *Carregador de carro elétrico em condomínio*, 23 jan. 2024. https://www.sindiconet.com.br/informese/carregador-de-carro-eletrico-em-condominio-colunistas-fernando-augusto-zito
+- UCONDO. *Carregadores de carros elétricos nos condomínios*. https://www.ucondo.com.br/blog/carregadores-de-carros-eletricos-nos-condominios
+- VOLTBRAS. *Benefícios do Protocolo OCPP na gestão de eletropostos*, 1 jul. 2025. https://voltbras.com/uncategorized-pt/beneficios-do-protocolo-ocpp-na-gestao-de-eletropostos/
+
+**Normas e legislação citadas (Frente 1)**
+- ABNT. NBR 5410 (instalações de baixa tensão); NBR 17019 (infraestrutura de recarga de EV); NBR IEC 61851-1 (carga condutiva).
+- BRASIL. Lei nº 10.406/2002 (Código Civil — arts. 1.335, 1.341, 1.342); Ministério do Trabalho, NR-10.
 - SÃO PAULO (Estado). Lei nº 18.403/2026; SÃO PAULO (Município). Lei nº 17.336/2020.
-- Câmara dos Deputados. PL 158/2025 e PL 6803/2025. https://www.camara.leg.br
-**Normas técnicas**
-- ABNT. NBR 5410, NBR 5419, NBR 17019, NBR IEC 61851 (partes 1–24), NBR IEC 62196; NR-10.
-- Corpo de Bombeiros PMESP. Instrução Técnica IT-41 / Portaria 003/970/2026 (SAVE).
-**Proteção de dados**
-- BRASIL. Lei nº 13.709/2018 (LGPD — arts. 6º, 7º e 20).
-**Programa industrial**
+- CORPO DE BOMBEIROS PMESP. Instrução Técnica IT-41 e Portaria 003/970/2026 (SAVE).
+- Pesquisa de campo (dados primários): questionário aplicado a moradores de um condomínio residencial (78 respostas), jun. 2026. Elaboração própria.
+
+### 9.2 Frente 2 — Base Regulatória e Técnica
+
+- ANEEL. Resolução Normativa nº 1.000, de 7 dez. 2021. https://www2.aneel.gov.br/cedoc/ren20211000.html
+- ANEEL. Resolução Normativa nº 1.059, de 7 fev. 2023. https://www2.aneel.gov.br/cedoc/ren20231059.html
+- ANEEL. Resolução Normativa nº 819, de 19 jun. 2018 (revogada). https://www2.aneel.gov.br/cedoc/ren2018819.html
+- ANEEL. *Veículos Elétricos*. https://www.gov.br/aneel/pt-br/assuntos/veiculos-eletricos
+- BRASIL. Lei nº 14.300/2022 (Marco Legal da GD) — Fio B. https://canalsolar.com.br/tarifacao-fio-b-lei-14-300/
 - BRASIL. Lei nº 14.902/2024 (Programa Mover); Decreto nº 12.435/2025. https://www.planalto.gov.br/ccivil_03/_Ato2023-2026/2024/Lei/L14902.htm
-**Equipamento e plataforma GoodWe**
-- GoodWe. HCA G2 Series AC Charger — página oficial e datasheet. https://en.goodwe.com/hca-g2
-- GoodWe Technologies. Manual do usuário — Carregador CA Série HCA (7–22 kW) G2, V1.5 (11 nov. 2025).
-- GoodWe. SEMS Portal / SEMS+. https://semsplus.goodwe.com
+- BRASIL. Decreto nº 12.955, de 29 abr. 2026 (regulamento da CBS), art. 15. https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/decreto/d12955.htm
+- BRASIL. Lei Complementar nº 214/2025, art. 28; Lei Complementar nº 116/2003 (item 14.01); Súmula 391 do STJ; Emenda Constitucional nº 132/2023.
+- CONJUR. *A ascensão da mobilidade elétrica e o dilema tributário no carregamento de veículos: ICMS ou ISS?*, 25 jul. 2025. https://www.conjur.com.br/2025-jul-25/a-ascensao-da-mobilidade-eletrica-e-o-dilema-tributario-no-carregamento-de-veiculos-icms-ou-iss/
+- SEFAZ-SP. Resposta a Consulta RC 30579/2024 (ICMS sobre recarga). https://legislacao.fazenda.sp.gov.br/Paginas/RC30579_2024.aspx — e RC 31007/2024.
+- Condomínio: Lei SP 18.403/2026 (SindicoNet). https://www.sindiconet.com.br/informese/lei-recarga-carros-eletricos-condominios-sp-2026-noticias-juridico
+- CÂMARA DOS DEPUTADOS. PL 158/2025 — instalação de ponto de recarga em condomínio. https://www.camara.leg.br/noticias/1134716-projeto-regulamenta-instalacao-de-ponto-individual-de-recarga-de-carro-eletrico-em-condominio/
+- ABNT. NBR 17019:2022; NBR IEC 61851 (partes 1, 21, 22, 23, 24); NBR IEC 62196. https://canalsolar.com.br/abnt-publica-norma-para-instalacao-de-carregadores-de-veiculos-eletricos/
+- CELESC. Instrução Normativa I-321.0043 — Estações de recarga. https://www.celesc.com.br/arquivos/normas-tecnicas/padrao-entrada/I-321-0043-Estacoes-de-recarga-de-veiculos-eletricos.pdf
+- GOODWE. HCA G2 Series AC Charger (página oficial e datasheet). https://en.goodwe.com/hca-g2
+- CANAL SOLAR. *GoodWe HCA G2 — análise técnica*. https://canalsolar.com.br/en/goodwe-hca-g2-electric-vehicle-charging/
+- UNIÃO EUROPEIA. Regulation (EU) 2023/1804 (AFIR). https://transport.ec.europa.eu/transport-themes/clean-transport/alternative-fuels-sustainable-mobility-europe/alternative-fuels-infrastructure_en
+- IEA. *Regulation (EU) 2023/1804 — Alternative Fuels Infrastructure Regulation*. https://www.iea.org/policies/27375-regulation-eu-20231804-alternative-fuels-infrastructure-regulation
+- OPEN CHARGE ALLIANCE. Open Charge Point Protocol (OCPP) — versões 1.6 / 2.0.1; ISO 15118.
+- WAY2. *LGPD no setor elétrico*. https://way2.com.br/blog/lgpd-no-setor-eletrico/ — e BRASIL, Lei nº 13.709/2018 (LGPD).
+- GOODWE. SEMS Portal / SEMS+ (endpoints a confirmar na Sprint 02). https://semsplus.goodwe.com
+- GOODWE TECHNOLOGIES. Manual do usuário — Carregador CA Série HCA (7–22 kW) G2, V1.5, 11 nov. 2025 (modelos GW7K/GW11K/GW22K-HCA-20).
 - Inspeção direta do ambiente *LAB FIAP Eco Smart Home* (SEMS+), realizada em 17/06/2026.
-**Contraponto internacional e padrões**
-- União Europeia. Regulation (EU) 2023/1804 (AFIR). https://transport.ec.europa.eu
-- Estados Unidos. Programa NEVI (National Electric Vehicle Infrastructure).
-- Open Charge Alliance. OCPP (1.6 / 2.0.1); ISO 15118 (Plug & Charge).
-**Dados primários**
-- Pesquisa de campo. Questionário aplicado a moradores de um condomínio residencial (78 respostas), jun. 2026. Elaboração própria.
+
+### 9.3 Frente 3 — Arquitetura e IA
+
+- CHARGEPOINT. *Improving transparency with per-kWh billing for EV charging in Canada*, 7 nov. 2023. https://www.chargepoint.com/blog/improving-transparency-kwh-billing-ev-charging-canada
+- CÂMARA DOS DEPUTADOS. *Projeto multa motorista que permanecer em vaga depois de recarregar carro elétrico*. https://www.camara.leg.br/noticias/1259657-projeto-multa-motorista-que-permanecer-em-vaga-depois-de-recargar-carro-eletrico/
+- NEOCHARGE. *Carregador para carro elétrico em prédios e condomínios: instalação*. https://www.neocharge.com.br/tudo-sobre/carregador-carro-eletrico-predio-condominio-instalacao
+- SCHNEIDER ELECTRIC. *Electrical Distribution Fundamentals Design Guide — Electric Vehicle Charging* (0100DB2301). https://productinfo.se.com/0100db2301_elecdistfunddesignguide/
+- ZAPTEC. *Zaptec Pro — Load and phase balancing for shared charging* (documentação do fabricante; referência cruzada na análise de mercado da Frente 1).
+
+### 9.4 Soluções de mercado adicionais (benchmark da Frente 1)
+
+- WALLBOX. *Pulsar Plus / myWallbox Business* (datasheet e documentação do fabricante).
+- EMEL / LEVE. Operadora de Pontos de Carregamento de Lisboa, integrada à rede pública MOBI.E.
+- ESTADOS UNIDOS. Programa NEVI — National Electric Vehicle Infrastructure (padrões mínimos de financiamento federal).
