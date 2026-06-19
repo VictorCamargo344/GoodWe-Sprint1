@@ -56,6 +56,9 @@ A Frente 2 mapeia o ambiente normativo e o equipamento, convertendo cada fragili
 | **Wi-Fi** | Conexão sem fio (2,4 GHz) com a nuvem | Alternativa de telemetria (decisão de instalação) |
 | **Bluetooth (BLE)** | Configuração local pelo app SolarGo | Comissionamento e manutenção (fora do fluxo de cobrança) |
 | **RFID** | Identificação do usuário (13,56 MHz; até 10 cartões) | Atribuição da sessão ao usuário — restrição de escala tratada na arquitetura |
+
+---
+
 **API GoodWe (SEMS Portal / SEMS+).** A inspeção direta do ambiente *LAB FIAP Eco Smart Home* documentou o que a plataforma expõe sobre o carregador: estado operacional, potência instantânea, duração e energia por sessão (kWh), **separação por origem solar × rede por sessão** (campos Green / Grid / Charged), Card ID, porta de recarga e curva de potência. O achado decisivo: a obrigação regulatória de não tratar energia solar compensada como consumo da rede **já existe como dado nativo** na plataforma.
 ### 3.2 Opções de aprofundamento escolhidas
 Foram desenvolvidas **as três opções**:
@@ -78,10 +81,8 @@ O dado percorre sete etapas: **(1)** reserva no app → **(2)** início da sess�
 - **Opção B - Definição do papel da IA.** Duas abordagens estruturais, previsão de janela ótima e detecção de anomalias (detalhadas na seção 7 e no documento de apoio `Papel_da_IA.docx`).
 ---
 ## 5. Diagrama de arquitetura
-A figura abaixo representa as quatro camadas da plataforma, as duas vias de conectividade, os módulos do back-end (incluindo a IA), a faixa de conformidade transversal e o fluxo do dado da sessão até a fatura.
-![Diagrama de arquitetura do EV ChargeOps em quatro camadas, da camada física com o carregador GoodWe HCA G2 e o gateway local, passando pela conectividade (via local Modbus TCP e via nuvem SEMS), pela camada de aplicação com os módulos de ingestão, regras de negócio e IA, até a camada de apresentação com o app do morador e o painel do gestor.](./arquitetura.png)
-*Figura 1 - Arquitetura da solução EV ChargeOps. Elaboração própria.*
----
+
+
 ## 6. Modelo de rateio
 O modelo foi desenhado para satisfazer três princípios simultaneamente: **justiça** (cada morador paga apenas o que usou), **transparência** (memória de cálculo auditável célula a célula) e **parametrização** (faixas tarifárias, impostos e overheads definidos pela assembleia, não fixados no código).
 ### 6.1 Modelo escolhido: híbrido
