@@ -123,17 +123,10 @@ A IA é adotada como **camada funcional estrutural, não decorativa**: cada téc
 Ambas (a) operam sobre dados já disponíveis, (b) são centrais ao produto — sem a previsão, a tarifação horária perde efetividade; sem a detecção, a memória de cálculo deixa de ser confiável — e (c) são explicáveis, compatíveis com a LGPD. Clustering de perfis e chatbot por NLP foram considerados e descartados por ganho marginal ou risco de cair no critério de "decorativo".
 ---
 ## 8. Plano para a Sprint 02
-A Sprint 02 (prazo 20/09/2026) desenvolve e prototipa a solução. A ordem de execução prioriza primeiro a espinha dorsal de dados, depois as regras de rateio e, por fim, a IA e as interfaces.
-| Ordem | Entrega | Tecnologias |
-| --- | --- | --- |
-| **1** | **Acesso à API SEMS** — obter credenciais de desenvolvedor, especificar endpoints (login/token, listagem de plantas, monitoramento e leitura de dispositivos) e modelar o consumo dos campos de sessão (kWh, Green/Grid, Card ID, timestamps). | Python, FastAPI, `requests`/`httpx` |
-| **2** | **Modelo de dados e back-end** — implementar as entidades (usuário, unidade, sessão, fatura, reserva), os relacionamentos e o módulo de ingestão e reconciliação SEMS + gateway. | PostgreSQL, SQLAlchemy, FastAPI |
-| **3** | **Gateway local** — protótipo de leitura Modbus TCP do HCA G2 (dependente do mapa de registradores da GoodWe, a obter com o parceiro), com bufferização persistente e sincronização. | Raspberry Pi / ESP32, `pymodbus` |
-| **4** | **Motor de rateio** — implementar o cálculo híbrido (kWh por faixa + ociosidade), o imposto parametrizável, a exclusão da energia compensada por modalidade, o tratamento dos casos excepcionais e a memória de cálculo auditável. | Python, Pandas |
-| **5** | **Módulos de IA** — previsão de janela ótima (regressão / XGBoost) e detecção de anomalias (Isolation Forest / LOF), treinados sobre dados simulados e o histórico da planta. | scikit-learn, XGBoost, PyOD |
-| **6** | **Interfaces** — app do morador (reservas, alertas, fatura, memória de cálculo) e painel do gestor (sessões, tarifas, fila de anomalias, arrecadação). | React / Flutter, REST |
-| **7** | **Integração, dados simulados e vídeo pitch** — popular o sistema com registros simulados, validar o fluxo ponta a ponta e preparar o pitch de 3 minutos da prova presencial. | — |
-**Dependências e incertezas registradas:** o mapa de registradores Modbus do HCA G2 não é público,  sua obtenção (via parceiro GoodWe ou engenharia reversa controlada) condiciona a viabilidade plena do gateway; as credenciais da API SEMS são pré-requisito da etapa 1; e a alíquota de referência do IBS ainda não está fechada, reforçando o tratamento parametrizado do imposto.
+
+
+
+
 ---
 ## 9. Fontes consultadas
 Todas as fontes abaixo foram efetivamente consultadas pela equipe. As referências completas de cada frente estão nos documentos `EV_ChargeOps_Frente1.docx`, `EV_ChargeOps_Frente2.docx` e `Frente_3_Arquitetura_e_IA.docx`.
