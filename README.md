@@ -1,4 +1,4 @@
-# EV ChargeOps — Gestão Inteligente de Recarga Compartilhada em Condomínios
+# EV ChargeOps - Gestão Inteligente de Recarga Compartilhada em Condomínios
 **Enterprise Challenge 2026 · Parceria GoodWe × FIAP · Sprint 01 — Pesquisa e Documentação**
 ---
 ## Equipe
@@ -81,7 +81,7 @@ O dado percorre sete etapas: **(1)** reserva no app → **(2)** início da sess�
 - **Opção B - Definição do papel da IA.** Duas abordagens estruturais, previsão de janela ótima e detecção de anomalias (detalhadas na seção 7 e no documento de apoio `Papel_da_IA.docx`).
 ---
 ## 5. Diagrama de arquitetura
-
+(https://github.com/VictorCamargo344/GoodWe-Sprint1/blob/main/Arquitetura_da_solucao.png)
 
 ## 6. Modelo de rateio
 O modelo foi desenhado para satisfazer três princípios simultaneamente: **justiça** (cada morador paga apenas o que usou), **transparência** (memória de cálculo auditável célula a célula) e **parametrização** (faixas tarifárias, impostos e overheads definidos pela assembleia, não fixados no código).
