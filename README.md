@@ -12,9 +12,9 @@
 ---
 ## Sumário
 1. [O problema e o contexto do desafio](#1-o-problema-e-o-contexto-do-desafio)
-2. [Frente 1 — Contexto e Problema](#2-frente-1--contexto-e-problema)
-3. [Frente 2 — Base Regulatória e Técnica](#3-frente-2--base-regulatória-e-técnica)
-4. [Frente 3 — Arquitetura e IA](#4-frente-3--arquitetura-e-ia)
+2. [Frente 1 - Contexto e Problema](#2-frente-1--contexto-e-problema)
+3. [Frente 2 - Base Regulatória e Técnica](#3-frente-2--base-regulatória-e-técnica)
+4. [Frente 3 - Arquitetura e IA](#4-frente-3--arquitetura-e-ia)
 5. [Diagrama de arquitetura](#5-diagrama-de-arquitetura)
 6. [Modelo de rateio](#6-modelo-de-rateio)
 7. [O papel da IA na solução](#7-o-papel-da-ia-na-solução)
@@ -28,11 +28,11 @@ Daí nasce o problema central: medir e atribuir a cada usuário exatamente o que
 O **EV ChargeOps** (Electric Vehicle Charge Operations) é a resposta a esse problema: uma plataforma de gestão de recarga de veículos elétricos voltada a condomínios, desenvolvida em parceria com a GoodWe. A solução apoia-se no hardware **GoodWe HCA G2** e comunica-se com ele pelo ecossistema nativo da GoodWe **Modbus TCP** na rede local e **API SEMS** na nuvem, considera o enquadramento regulatório da ANEEL e oferece um modelo de faturação e rateio que distribui os custos de forma transparente.
 > **A pergunta que organiza o projeto:** como transformar sessões de recarga em uma infraestrutura compartilhada em dados estruturados, rateio justo e inteligência acionável, com IA como motor lógico?
 **Decisões transversais do MVP** (definidas na Frente 3 e que orientam toda a solução):
-- **Cenário de referência:** carregador rotativo em condomínio, atendendo múltiplos moradores em um mesmo ponto físico — não o cenário simplificado de uma vaga por unidade. É o cenário que o desafio propõe e que a infraestrutura real do laboratório FIAP (HCA G2 instalado na Unidade Aclimação) reproduz.
+- **Cenário de referência:** carregador rotativo em condomínio, atendendo múltiplos moradores em um mesmo ponto físico, não o cenário simplificado de uma vaga por unidade. É o cenário que o desafio propõe e que a infraestrutura real do laboratório FIAP (HCA G2 instalado na Unidade Aclimação) reproduz.
 - **Comunicação:** ecossistema GoodWe (Modbus TCP localmente e API SEMS na nuvem), **sem OCPP** o HCA G2 não o implementa. O OCPP fica registrado como vetor de evolução futura, não como compromisso arquitetural do MVP.
 - **Identificação do morador:** por **reserva prévia no aplicativo**, e não por cadastro individual de cartão RFID no firmware, contornando o limite de dez cartões por equipamento e preservando a escalabilidade para condomínios com dezenas de unidades.
 ---
-## 2. Frente 1 — Contexto e Problema
+## 2. Frente 1 - Contexto e Problema
 A Frente 1 percorre as camadas que se sobrepõem na prática condominial, infraestrutura elétrica, individualização do consumo, segurança, disponibilidade e moldura jurídica e consolida o problema em uma proposta de solução.
 ### 2.1 Itens obrigatórios
 **Infraestrutura de recarga compartilhada e desafios de gestão.** A diferença essencial em relação à recarga doméstica está em por onde a energia é medida: em casa, o carregador fica atrás do medidor do próprio morador; no condomínio, costuma ser alimentado pela rede comum e diluído na taxa. Os desafios operacionais agrupam-se em cinco eixos: (a) **capacidade elétrica e risco de sobrecarga**, já que o pico de recarga coincide com o pico residencial; (b) **individualização do consumo e cobrança justa**; (c) **segurança e conformidade normativa** (ABNT NBR 5410, NBR 17019, NBR IEC 61851-1, NR-10 e instruções do Corpo de Bombeiros, com emissão de ART); (d) **disponibilidade, filas e agendamento**; e (e) **lacunas regulatórias e responsabilidade do síndico**.
@@ -42,7 +42,7 @@ A Frente 1 percorre as camadas que se sobrepõem na prática condominial, infrae
 Foram desenvolvidas **as três opções** (A, B e C), formando um triângulo de evidências:
 - **Opção A -  Análise de mercado.** Mapeamento de cinco soluções em operação: **Zaptec Pro** (Noruega), **Wallbox Pulsar Plus** (Espanha), **ChargePoint** (EUA), **NeoCharge** (Brasil) e **EMEL/LEVE** (Portugal, recarga pública municipal). Conclusão: balanceamento de carga, medição individual e app já são padrão de mercado; o espaço de diferenciação está no **rateio condominial automatizado, na tarifa por horário (inspirada na Tarifa Branca) e na aderência à regulação brasileira**, justamente onde o EV ChargeOps se posiciona.
 - **Opção B - Pesquisa de campo.** Questionário aplicado a moradores de um condomínio real, com **78 respostas**. Achados-chave: 88% têm intenção de adquirir um EV e 100% afirmam não haver ponto de recarga hoje (cenário *greenfield*); 96% rejeitam ratear a recarga alheia e 99% valorizam medição individual; 91% preferem pagar por kWh consumido; 96% aprovariam a instalação em assembleia se a cobrança fosse individual; entre quem já tem EV, 100% aceitam tarifa por horário **desde que o agendamento seja automático**. A pesquisa transforma o agendamento inteligente de diferencial técnico em **requisito de adoção**.
-- **Opção C - Análise de dados públicos.** Dimensionamento do mercado a partir de ABVE, Tupi Mobilidade, NeoCharge/Senatran e McKinsey: a frota de eletrificados cresce em ritmo próximo da duplicação anual (48.591 emplacamentos só no 1º bimestre de 2026, +90% sobre 2025), enquanto a rede de recarga avança ~42% ao ano. A projeção da McKinsey aponta ~580 mil carregadores até 2030, dos quais ~490 mil residenciais e de frota — confirmando que o esforço de eletrificação se concentra na **recarga privada e compartilhada**, o território do EV ChargeOps.
+- **Opção C - Análise de dados públicos.** Dimensionamento do mercado a partir de ABVE, Tupi Mobilidade, NeoCharge/Senatran e McKinsey: a frota de eletrificados cresce em ritmo próximo da duplicação anual (48.591 emplacamentos só no 1º bimestre de 2026, +90% sobre 2025), enquanto a rede de recarga avança ~42% ao ano. A projeção da McKinsey aponta ~580 mil carregadores até 2030, dos quais ~490 mil residenciais e de frota, confirmando que o esforço de eletrificação se concentra na **recarga privada e compartilhada**, o território do EV ChargeOps.
 ---
 ## 3. Frente 2 - Base Regulatória e Técnica
 A Frente 2 mapeia o ambiente normativo e o equipamento, convertendo cada fragilidade jurídica em uma decisão de projeto.
@@ -55,7 +55,7 @@ A Frente 2 mapeia o ambiente normativo e o equipamento, convertendo cada fragili
 | **LAN** | Conexão cabeada com o roteador e a nuvem SEMS | Telemetria estável das sessões até o back-end |
 | **Wi-Fi** | Conexão sem fio (2,4 GHz) com a nuvem | Alternativa de telemetria (decisão de instalação) |
 | **Bluetooth (BLE)** | Configuração local pelo app SolarGo | Comissionamento e manutenção (fora do fluxo de cobrança) |
-| **RFID** | Identificação do usuário (13,56 MHz; até 10 cartões) | Atribuição da sessão ao usuário — restrição de escala tratada na arquitetura |
+| **RFID** | Identificação do usuário (13,56 MHz; até 10 cartões) | Atribuição da sessão ao usuário - restrição de escala tratada na arquitetura |
 
 ---
 
@@ -102,7 +102,7 @@ A fatura mensal de cada morador é a soma de todas as suas sessões válidas, co
 Sobre o subtotal incidem dois acréscimos: o **imposto** correspondente (ICMS, ISS ou IBS, conforme município e período da reforma tributária), destacado na fatura; e um **overhead operacional opcional**, percentual sobre o subtotal definido pela assembleia, que o condomínio pode zerar ou aplicar.
 As **faixas horárias** (ponta, intermediário e fora de ponta) e seus preços espelham a lógica da Tarifa Branca da ANEEL e são definidas pela assembleia.
 ### 6.3 Reembolso ao condomínio
-O condomínio paga à distribuidora a conta integral do mês. O valor arrecadado nas faturas individuais retorna ao caixa, **reembolsando exatamente o que foi gasto com a energia dos carros**. Resultado: quem não usa o carregador tem fatura zero (sem assinatura mínima), e a diluição na taxa condominial desaparece — o argumento que destrava a aprovação em assembleia deixa de ser promessa e passa a ser arquitetura.
+O condomínio paga à distribuidora a conta integral do mês. O valor arrecadado nas faturas individuais retorna ao caixa, **reembolsando exatamente o que foi gasto com a energia dos carros**. Resultado: quem não usa o carregador tem fatura zero (sem assinatura mínima), e a diluição na taxa condominial desaparece, o argumento que destrava a aprovação em assembleia deixa de ser promessa e passa a ser arquitetura.
 
 ### 6.4 Casos excepcionais
 | Caso | Tratamento |
@@ -119,13 +119,14 @@ O **cartão físico RFID** é um recurso compartilhado do condomínio (até 10 p
 
 ---
 ## 7. O papel da IA na solução
-A IA é adotada como **camada funcional estrutural, não decorativa**: cada técnica precisa atacar uma dor concreta que, sem ela, ficaria mal resolvida. Sob esse critério, **duas abordagens** se justificam, ambas operando sobre os dados que a SEMS e o gateway já entregam — sem instrumentação adicional. O detalhamento completo está no documento de apoio **`Papel_da_IA.docx`**.
-### 7.1 Abordagem 1 — Previsão para recomendação de janela ótima
-**Problema:** o incentivo da tarifação horária é passivo — o morador não consegue antecipar a curva solar, o estado da bateria ou o impacto financeiro de carregar agora versus de madrugada, e tende a carregar no pico, anulando o ganho.
+A IA é adotada como **camada funcional estrutural, não decorativa**: cada técnica precisa atacar uma dor concreta que, sem ela, ficaria mal resolvida. Sob esse critério, **duas abordagens** se justificam, ambas operando sobre os dados que a SEMS e o gateway já entregam, sem instrumentação adicional. O detalhamento completo está no documento de apoio.
+
+### 7.1 Abordagem 1 - Previsão para recomendação de janela ótima
+**Problema:** o incentivo da tarifação horária é passivo, o morador não consegue antecipar a curva solar, o estado da bateria ou o impacto financeiro de carregar agora versus de madrugada, e tende a carregar no pico, anulando o ganho.
 **Técnica:** regressão sobre séries temporais (regressão linear com features sazonais e gradient boosting / XGBoost) para prever geração solar e consumo do prédio nas próximas 24–48 h, alimentando uma função-objetivo que minimiza o custo previsto sob a restrição de capacidade elétrica.
 **Dados:** histórico de sessões, geração fotovoltaica, SOC da bateria, tarifas por faixa e previsão meteorológica (INMET).
 **Impacto:** converte o incentivo abstrato em economia visível ("carregar às 2h30 custa R$ X contra R$ Y agora") e achata a curva de demanda no pico para o condomínio.
-### 7.2 Abordagem 2 — Detecção de anomalias de medição
+### 7.2 Abordagem 2 - Detecção de anomalias de medição
 **Problema:** medições internamente coerentes para o equipamento, mas contextualmente impossíveis (ex.: 50 kWh em um carregador de 7 kW em 90 min), passam pelos testes internos do HCA G2 e entrariam silenciosamente na fatura.
 **Técnica:** modelos não supervisionados de detecção de outliers (**Isolation Forest** e **Local Outlier Factor**, via PyOD e scikit-learn), que aprendem o normal a partir do histórico da planta sem exigir rótulos de fraude prévios.
 **Dados:** kWh, duração, potência média/máxima, razão kWh/duração, faixa horária, Card ID e curva de potência.
@@ -133,7 +134,7 @@ A IA é adotada como **camada funcional estrutural, não decorativa**: cada téc
 
 ### 7.3 Por que essas duas, e não outras
 
-Ambas (a) operam sobre dados já disponíveis, (b) são centrais ao produto — sem a previsão, a tarifação horária perde efetividade; sem a detecção, a memória de cálculo deixa de ser confiável — e (c) são explicáveis, compatíveis com a LGPD. Clustering de perfis e chatbot por NLP foram considerados e descartados por ganho marginal ou risco de cair no critério de "decorativo".
+Ambas (a) operam sobre dados já disponíveis, (b) são centrais ao produto, sem a previsão, a tarifação horária perde efetividade; sem a detecção, a memória de cálculo deixa de ser confiável e (c) são explicáveis, compatíveis com a LGPD. Clustering de perfis e chatbot por NLP foram considerados e descartados por ganho marginal ou risco de cair no critério de "decorativo".
 
 ---
 ## 8. Plano para a Sprint 02
@@ -145,7 +146,7 @@ Ambas (a) operam sobre dados já disponíveis, (b) são centrais ao produto — 
 ## 9. Fontes consultadas
 Todas as fontes abaixo foram efetivamente consultadas pela equipe e correspondem às referências dos três documentos de pesquisa (Frentes 1, 2 e 3). Datas de acesso entre junho de 2026, conforme registrado em cada frente.
 
-### 9.1 Frente 1 — Contexto e Problema
+### 9.1 Frente 1 - Contexto e Problema
 
 **Frota, mercado e infraestrutura**
 - ABVE. *Recarga pública rápida cresce 167% em 12 meses e já atinge 31% dos 21 mil eletropostos da rede*. Associação Brasileira do Veículo Elétrico, 2026. https://abve.org.br/recarga-publica-rapida-cresce-167-em-12-meses-e-ja-atinge-31-dos-21-mil-eletropostos-da-rede/
@@ -163,64 +164,64 @@ Todas as fontes abaixo foram efetivamente consultadas pela equipe e correspondem
 - ANEEL. *Tarifa Branca: introdução*. https://www.gov.br/aneel/pt-br/assuntos/tarifas/tarifa-branca/introducao
 - CANAL SOLAR. *Tarifa branca: conceitos e especificações na medição de energia elétrica*, 20 maio 2025. https://canalsolar.com.br/tarifa-branca-conceitos-e-especificacoes-na-medicao-de-energia-eletrica/
 - EDP BRASIL. *Tarifa branca*. https://www.edp.com.br/tarifa-branca/
-- ENEL. *Tarifa Branca — Enel Distribuição São Paulo*. https://www.enel.com.br/pt-saopaulo/tarifa-branca.html
+- ENEL. *Tarifa Branca - Enel Distribuição São Paulo*. https://www.enel.com.br/pt-saopaulo/tarifa-branca.html
 - ELETRICPAY. *Balanceamento de carga para carregamento de veículos em condomínios*. https://eletricpay.com/balanceamento-de-carga-para-carregamento-de-veiculos-em-condominios/
 
 **Condomínio, jurisprudência e OCPP**
 - CHARGEGURU. *Carregamento de veículos elétricos em condomínios*, 2026. https://chargeguru.com/pt/carregamento-em-condominios/
 - CONSULTOR JURÍDICO (CONJUR). *Instalação de carregador de carro elétrico em prédio exige aprovação de assembleia*, 18 jan. 2024. https://www.conjur.com.br/2024-jan-18/instalacao-de-carregador-de-carro-eletrico-em-predio-exige-aprovacao-de-assembleia/
 - MIGALHAS. *Moradora não pode instalar carregador veicular sem aval de condomínio*, 19 nov. 2025. https://www.migalhas.com.br/quentes/444793/moradora-nao-pode-instalar-carregador-veicular-sem-aval-de-condominio
-- NEOCHARGE. *OCPP — Protocolo de Ponto de Carga Aberto*. https://www.neocharge.com.br/tudo-sobre/carregador-carro-eletrico/protocolo-ocpp
+- NEOCHARGE. *OCPP - Protocolo de Ponto de Carga Aberto*. https://www.neocharge.com.br/tudo-sobre/carregador-carro-eletrico/protocolo-ocpp
 - NICAIRA RODRIGUES ADVOCACIA. *Carregador de carro elétrico em condomínio: guia completo para síndicos*, 11 ago. 2025. https://nicairarodriguesadvocacia.com.br/carregador-de-carro-eletrico-em-condominio-guia-completo-para-sindicos/
 - O ELECTRICISTA. *As soluções de carregamento OCPP da TEV*, 4 mar. 2026. https://www.oelectricista.pt/as-solucoes-de-carregamento-ocpp-da-tev/
-- POWER2GO. *FAQ — Instalação de carregadores para veículos elétricos em condomínios*, 27 jun. 2025. https://www.power2go.com.br/post/faq-instalação-de-carregadores-para-veículos-elétricos-em-condomínios
+- POWER2GO. *FAQ - Instalação de carregadores para veículos elétricos em condomínios*, 27 jun. 2025. https://www.power2go.com.br/post/faq-instalação-de-carregadores-para-veículos-elétricos-em-condomínios
 - SINDICONET. *Carregador de carro elétrico em condomínio*, 23 jan. 2024. https://www.sindiconet.com.br/informese/carregador-de-carro-eletrico-em-condominio-colunistas-fernando-augusto-zito
 - UCONDO. *Carregadores de carros elétricos nos condomínios*. https://www.ucondo.com.br/blog/carregadores-de-carros-eletricos-nos-condominios
 - VOLTBRAS. *Benefícios do Protocolo OCPP na gestão de eletropostos*, 1 jul. 2025. https://voltbras.com/uncategorized-pt/beneficios-do-protocolo-ocpp-na-gestao-de-eletropostos/
 
 **Normas e legislação citadas (Frente 1)**
 - ABNT. NBR 5410 (instalações de baixa tensão); NBR 17019 (infraestrutura de recarga de EV); NBR IEC 61851-1 (carga condutiva).
-- BRASIL. Lei nº 10.406/2002 (Código Civil — arts. 1.335, 1.341, 1.342); Ministério do Trabalho, NR-10.
+- BRASIL. Lei nº 10.406/2002 (Código Civil - arts. 1.335, 1.341, 1.342); Ministério do Trabalho, NR-10.
 - SÃO PAULO (Estado). Lei nº 18.403/2026; SÃO PAULO (Município). Lei nº 17.336/2020.
 - CORPO DE BOMBEIROS PMESP. Instrução Técnica IT-41 e Portaria 003/970/2026 (SAVE).
 - Pesquisa de campo (dados primários): questionário aplicado a moradores de um condomínio residencial (78 respostas), jun. 2026. Elaboração própria.
 
-### 9.2 Frente 2 — Base Regulatória e Técnica
+### 9.2 Frente 2 - Base Regulatória e Técnica
 
 - ANEEL. Resolução Normativa nº 1.000, de 7 dez. 2021. https://www2.aneel.gov.br/cedoc/ren20211000.html
 - ANEEL. Resolução Normativa nº 1.059, de 7 fev. 2023. https://www2.aneel.gov.br/cedoc/ren20231059.html
 - ANEEL. Resolução Normativa nº 819, de 19 jun. 2018 (revogada). https://www2.aneel.gov.br/cedoc/ren2018819.html
 - ANEEL. *Veículos Elétricos*. https://www.gov.br/aneel/pt-br/assuntos/veiculos-eletricos
-- BRASIL. Lei nº 14.300/2022 (Marco Legal da GD) — Fio B. https://canalsolar.com.br/tarifacao-fio-b-lei-14-300/
+- BRASIL. Lei nº 14.300/2022 (Marco Legal da GD) - Fio B. https://canalsolar.com.br/tarifacao-fio-b-lei-14-300/
 - BRASIL. Lei nº 14.902/2024 (Programa Mover); Decreto nº 12.435/2025. https://www.planalto.gov.br/ccivil_03/_Ato2023-2026/2024/Lei/L14902.htm
 - BRASIL. Decreto nº 12.955, de 29 abr. 2026 (regulamento da CBS), art. 15. https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/decreto/d12955.htm
 - BRASIL. Lei Complementar nº 214/2025, art. 28; Lei Complementar nº 116/2003 (item 14.01); Súmula 391 do STJ; Emenda Constitucional nº 132/2023.
 - CONJUR. *A ascensão da mobilidade elétrica e o dilema tributário no carregamento de veículos: ICMS ou ISS?*, 25 jul. 2025. https://www.conjur.com.br/2025-jul-25/a-ascensao-da-mobilidade-eletrica-e-o-dilema-tributario-no-carregamento-de-veiculos-icms-ou-iss/
-- SEFAZ-SP. Resposta a Consulta RC 30579/2024 (ICMS sobre recarga). https://legislacao.fazenda.sp.gov.br/Paginas/RC30579_2024.aspx — e RC 31007/2024.
+- SEFAZ-SP. Resposta a Consulta RC 30579/2024 (ICMS sobre recarga). https://legislacao.fazenda.sp.gov.br/Paginas/RC30579_2024.aspx - e RC 31007/2024.
 - Condomínio: Lei SP 18.403/2026 (SindicoNet). https://www.sindiconet.com.br/informese/lei-recarga-carros-eletricos-condominios-sp-2026-noticias-juridico
-- CÂMARA DOS DEPUTADOS. PL 158/2025 — instalação de ponto de recarga em condomínio. https://www.camara.leg.br/noticias/1134716-projeto-regulamenta-instalacao-de-ponto-individual-de-recarga-de-carro-eletrico-em-condominio/
+- CÂMARA DOS DEPUTADOS. PL 158/2025 - instalação de ponto de recarga em condomínio. https://www.camara.leg.br/noticias/1134716-projeto-regulamenta-instalacao-de-ponto-individual-de-recarga-de-carro-eletrico-em-condominio/
 - ABNT. NBR 17019:2022; NBR IEC 61851 (partes 1, 21, 22, 23, 24); NBR IEC 62196. https://canalsolar.com.br/abnt-publica-norma-para-instalacao-de-carregadores-de-veiculos-eletricos/
-- CELESC. Instrução Normativa I-321.0043 — Estações de recarga. https://www.celesc.com.br/arquivos/normas-tecnicas/padrao-entrada/I-321-0043-Estacoes-de-recarga-de-veiculos-eletricos.pdf
+- CELESC. Instrução Normativa I-321.0043 - Estações de recarga. https://www.celesc.com.br/arquivos/normas-tecnicas/padrao-entrada/I-321-0043-Estacoes-de-recarga-de-veiculos-eletricos.pdf
 - GOODWE. HCA G2 Series AC Charger (página oficial e datasheet). https://en.goodwe.com/hca-g2
-- CANAL SOLAR. *GoodWe HCA G2 — análise técnica*. https://canalsolar.com.br/en/goodwe-hca-g2-electric-vehicle-charging/
+- CANAL SOLAR. *GoodWe HCA G2 - análise técnica*. https://canalsolar.com.br/en/goodwe-hca-g2-electric-vehicle-charging/
 - UNIÃO EUROPEIA. Regulation (EU) 2023/1804 (AFIR). https://transport.ec.europa.eu/transport-themes/clean-transport/alternative-fuels-sustainable-mobility-europe/alternative-fuels-infrastructure_en
-- IEA. *Regulation (EU) 2023/1804 — Alternative Fuels Infrastructure Regulation*. https://www.iea.org/policies/27375-regulation-eu-20231804-alternative-fuels-infrastructure-regulation
-- OPEN CHARGE ALLIANCE. Open Charge Point Protocol (OCPP) — versões 1.6 / 2.0.1; ISO 15118.
-- WAY2. *LGPD no setor elétrico*. https://way2.com.br/blog/lgpd-no-setor-eletrico/ — e BRASIL, Lei nº 13.709/2018 (LGPD).
+- IEA. *Regulation (EU) 2023/1804 - Alternative Fuels Infrastructure Regulation*. https://www.iea.org/policies/27375-regulation-eu-20231804-alternative-fuels-infrastructure-regulation
+- OPEN CHARGE ALLIANCE. Open Charge Point Protocol (OCPP) - versões 1.6 / 2.0.1; ISO 15118.
+- WAY2. *LGPD no setor elétrico*. https://way2.com.br/blog/lgpd-no-setor-eletrico/ - e BRASIL, Lei nº 13.709/2018 (LGPD).
 - GOODWE. SEMS Portal / SEMS+ (endpoints a confirmar na Sprint 02). https://semsplus.goodwe.com
-- GOODWE TECHNOLOGIES. Manual do usuário — Carregador CA Série HCA (7–22 kW) G2, V1.5, 11 nov. 2025 (modelos GW7K/GW11K/GW22K-HCA-20).
+- GOODWE TECHNOLOGIES. Manual do usuário - Carregador CA Série HCA (7–22 kW) G2, V1.5, 11 nov. 2025 (modelos GW7K/GW11K/GW22K-HCA-20).
 - Inspeção direta do ambiente *LAB FIAP Eco Smart Home* (SEMS+), realizada em 17/06/2026.
 
-### 9.3 Frente 3 — Arquitetura e IA
+### 9.3 Frente 3 - Arquitetura e IA
 
 - CHARGEPOINT. *Improving transparency with per-kWh billing for EV charging in Canada*, 7 nov. 2023. https://www.chargepoint.com/blog/improving-transparency-kwh-billing-ev-charging-canada
 - CÂMARA DOS DEPUTADOS. *Projeto multa motorista que permanecer em vaga depois de recarregar carro elétrico*. https://www.camara.leg.br/noticias/1259657-projeto-multa-motorista-que-permanecer-em-vaga-depois-de-recargar-carro-eletrico/
 - NEOCHARGE. *Carregador para carro elétrico em prédios e condomínios: instalação*. https://www.neocharge.com.br/tudo-sobre/carregador-carro-eletrico-predio-condominio-instalacao
-- SCHNEIDER ELECTRIC. *Electrical Distribution Fundamentals Design Guide — Electric Vehicle Charging* (0100DB2301). https://productinfo.se.com/0100db2301_elecdistfunddesignguide/
-- ZAPTEC. *Zaptec Pro — Load and phase balancing for shared charging* (documentação do fabricante; referência cruzada na análise de mercado da Frente 1).
+- SCHNEIDER ELECTRIC. *Electrical Distribution Fundamentals Design Guide - Electric Vehicle Charging* (0100DB2301). https://productinfo.se.com/0100db2301_elecdistfunddesignguide/
+- ZAPTEC. *Zaptec Pro - Load and phase balancing for shared charging* (documentação do fabricante; referência cruzada na análise de mercado da Frente 1).
 
 ### 9.4 Soluções de mercado adicionais (benchmark da Frente 1)
 
 - WALLBOX. *Pulsar Plus / myWallbox Business* (datasheet e documentação do fabricante).
 - EMEL / LEVE. Operadora de Pontos de Carregamento de Lisboa, integrada à rede pública MOBI.E.
-- ESTADOS UNIDOS. Programa NEVI — National Electric Vehicle Infrastructure (padrões mínimos de financiamento federal).
+- ESTADOS UNIDOS. Programa NEVI - National Electric Vehicle Infrastructure (padrões mínimos de financiamento federal).
