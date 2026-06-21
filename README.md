@@ -139,8 +139,68 @@ Ambas (a) operam sobre dados já disponíveis, (b) são centrais ao produto, sem
 ---
 ## 8. Plano para a Sprint 02
 
+A Sprint 02 transforma o que foi pesquisado e decidido nas Frentes 1, 2 e 3 em código consumindo dados reais do HCA G2 pela **API SEMS+**, com prazo de entrega em **20/09/2026**. O critério de fechamento é direto: uma sessão de recarga real precisa ser ingerida pela SEMS+ com separação solar × rede, atribuída ao morador correto pela reserva ativa, faturada conforme a Seção 6 com memória de cálculo expandível campo a campo, e atravessar os dois modelos de IA da Seção 7 antes de chegar ao morador no app e ao síndico no painel.
 
+### 8.1 Escopo do MVP
+Está dentro da sprint todo o fluxo de ponta a ponta descrito na Seção 4.2, com os dois modelos de IA da Seção 7 servidos como endpoints e as duas interfaces (morador e síndico) consumindo o mesmo back-end. Está fora da sprint, e fica explicitamente registrado como evolução futura, o suporte ao protocolo OCPP, a integração com gateway de pagamento (PIX automático e cartão de crédito), a separação por *tenancy* para múltiplos condomínios, a certificação metrológica para fins fiscais e a interface conversacional por NLP. A contenção é deliberada: cada uma dessas frentes vale uma sprint inteira por si só, e empacotá-las junto com o núcleo do produto comprometeria a qualidade do entregável principal.
 
+A única fonte de dado real confirmada é a **API SEMS+**, já inspecionada pela equipe (Frente 2). Em consequência, o gateway local Modbus permanece no escopo arquitetural e é desenvolvido e demonstrado contra simulador, mas a validação Modbus TCP contra o equipamento físico fica registrada como atividade pós-sprint, condicionada à disponibilidade do laboratório da FIAP. O fluxo demonstrado na entrega final consome a SEMS+ como fonte primária; o gateway entra na demo como peça de resiliência exercitada com dados sintéticos.
+
+### 8.2 Módulos a desenvolver
+Os módulos são descritos na ordem da pilha (físico → conectividade → aplicação → apresentação), espelhando a Seção 4.
+
+**Gateway local.** Roda em um Raspberry Pi 4 conectado à mesma sub-rede do HCA G2, lendo os registradores Modbus TCP do carregador a cada segundo. Mantém um *buffer* em SQLite local que serializa cada sessão completa (cabeçalho, série de potência, energia por origem, eventos) e tenta entregá-la ao back-end via REST. Em caso de falha de internet ou de indisponibilidade da SEMS, o *buffer* cresce localmente sem perda, e a entrega é retomada na primeira janela de conexão. O gateway é a garantia de que nenhuma sessão se perde e é também a fonte da verdade quando a SEMS está fora do ar.
+
+**Back-end de ingestão e reconciliação.** Em Python 3.12 com FastAPI, recebe os dados de duas origens, o cliente da API SEMS (consultas periódicas) e o *endpoint* REST do gateway (entrega *push*), e os funde em um único registro de sessão. A regra de reconciliação é "SEMS quando disponível, gateway como *fallback*". Eventuais discrepâncias entre as duas fontes ficam registradas em uma tabela de auditoria para revisão posterior.
+
+**Motor de rateio.** Aplica a fórmula da Seção 6 sobre as sessões persistidas e gera a fatura mensal individual. Cada parcela (energia verde, energia da rede, ociosidade, imposto e *overhead*) é calculada de forma isolada e a memória de cálculo correspondente é serializada como JSONB no Postgres, permitindo ao morador abrir a fatura linha por linha e ver exatamente quais sessões compõem o valor. Os quatro casos excepcionais da Seção 6.4 são tratados como caminhos explícitos no *engine*, não como exceções soltas no código.
+
+**Reserva e atribuição de sessão.** É o módulo que converte cartão RFID compartilhado em identidade individual. O morador reserva uma janela no app; quando o cartão é apresentado ao HCA G2 dentro dessa janela, a sessão é atribuída automaticamente à reserva ativa. Para o caso de sessão sem reserva correspondente, a sessão é atribuída ao dono cadastrado do cartão como rede de segurança contra sessões órfãs. O agendamento é parametrizado pela capacidade simultânea do condomínio, com fila e cancelamento por no-show conforme a Seção 6.4.
+
+**Inteligência artificial.** Os dois modelos da Seção 7 são empacotados como endpoints do back-end. O detector de anomalias (Isolation Forest e LOF, via PyOD) recebe a sessão recém-encerrada e retorna um *score*; sessões acima do limiar ficam suspensas na fila do gestor antes de entrarem na fatura. O preditor de janela ótima (regressão linear) consome o histórico de sessões, a curva de geração fotovoltaica do laboratório, e devolve para o app do morador uma recomendação de horário com o custo previsto associado.
+
+**Interfaces.** O **app do morador**, em React + Vite + TypeScript entregue como PWA, cobre reserva, consulta de fatura mês a mês, abertura da memória de cálculo de cada sessão, recomendação de janela ótima e histórico de consumo. O **painel do síndico**, no mesmo *stack*, cobre visão em tempo real das sessões em andamento, configuração das faixas tarifárias e do *overhead*, fila de sessões suspeitas (saída do detector de anomalia) para aprovar ou rejeitar e relatório mensal de arrecadação para fechamento contábil com o condomínio.
+
+### 8.3 Sequência de entrega
+A sequência respeita as dependências de dados de cada módulo. Nenhum módulo entra antes de seus pré-requisitos estarem persistidos, o que evita retrabalho e mantém o *pipeline* testável de ponta a ponta a cada *commit*.
+
+| Fase | Semanas | Entregas |
+| --- | --- | --- |
+| **1. Fundação** | 1–2 | Esquema PostgreSQL completo (usuário, unidade, reserva, sessão, fatura, tarifa, evento), *scaffolding* FastAPI com autenticação, repositório com CI no GitHub Actions e o **simulador Modbus do HCA G2**. O simulador é o que destrava todo o trabalho posterior, já que o carregador físico do laboratório está disponível apenas em janelas presenciais curtas. |
+| **2. Ingestão e reconciliação** | 3–4 | Cliente da API SEMS, leitor Modbus no gateway, *endpoint* de recepção no back-end e tabela de auditoria das discrepâncias entre as duas fontes. |
+| **3. Motor de rateio** | 5–7 | memória de cálculo serializada em JSONB, parametrização das faixas tarifárias e dos impostos e tratamento dos quatro casos excepcionais da Seção 6.4. |
+| **4. Reserva e atribuição** | 8–9 | Fluxo de reserva no app, regra de atribuição automática da sessão à reserva ativa, fila e cancelamento por no-show. |
+| **5. Inteligência artificial** | 10–11 | *Pipeline* de *features*, treino e *back-test* do detector de anomalia (Isolation Forest e LOF) e do preditor de janela ótima (regressão linear sazonal + XGBoost), com integração nos endpoints `/anomalias` e `/recomendacao-janela`. O treino inicial usa o dataset *Electric Vehicle Charging Sessions* do Kaggle; o ajuste fino acontece com os dados reais coletados no FIAP. |
+| **6. Interfaces e integração final** | 12–13 | App do morador, painel do síndico e integração de ponta a ponta com a **API SEMS+** alimentada pelo HCA G2 do laboratório, com o gateway local exercitado contra simulador no mesmo cenário. Inclui a gravação do vídeo pitch de 3 minutos exigido pela prova presencial. |
+
+### 8.4 Stack tecnológica
+
+| Camada | Tecnologia | Decisão |
+| --- | --- | --- |
+| **Gateway local** | Raspberry Pi 4, `pymodbus`, SQLite | Hardware de baixo custo com Modbus TCP nativo e persistência local que sobrevive a quedas da nuvem. |
+| **Back-end** | Python 3.12, FastAPI, SQLAlchemy, Alembic | Tipagem forte com Pydantic, validação automática nos contratos REST e ecossistema científico que permite à IA viver no mesmo *runtime* do back-end. |
+| **Banco de dados** | PostgreSQL 16 | Transações ACID para a fatura, JSONB para a memória de cálculo e suporte nativo a séries temporais para a curva de potência das sessões. |
+| **Inteligência artificial** | scikit-learn, PyOD, XGBoost, pandas | Cobre as duas frentes da Seção 7 com modelos explicáveis, compatíveis com a exigência de transparência algorítmica do art. 20 da LGPD. |
+| **Front-end** | React, Vite, TypeScript, PWA | Mesma base de componentes serve ao app do morador e ao painel do síndico, sobre os mesmos endpoints REST; PWA evita o custo de manter app nativo nesta sprint. |
+| **Infraestrutura de desenvolvimento** | Docker Compose, pytest, GitHub Actions | Ambiente reprodutível para back-end + banco + simulador em qualquer máquina da equipe, com *pipeline* de testes e *linters* a cada *commit*. |
+
+### 8.5 Riscos e mitigações
+
+| Risco | Mitigação |
+| --- | --- |
+| **Acesso restrito ao HCA G2 físico** | A SEMS+ é a fonte primária da demo, e a equipe já validou o acesso à API. O gateway Modbus é desenvolvido contra simulador na Fase 1 e demonstrado no mesmo ambiente; a validação Modbus TCP contra o equipamento físico fica condicionada à abertura de janela presencial no laboratório, sem bloquear a entrega da sprint. |
+| **Indisponibilidade pontual da API SEMS+** | O *buffer* SQLite do gateway, ainda que validado em simulador, demonstra arquiteturalmente como a operação real absorveria quedas da SEMS+ sem perda de sessão. Para a demo, sessões já coletadas durante a Sprint 01 ficam em cache local para repetição offline. |
+| **Histórico insuficiente para treinar a IA** | Treino inicial sobre o dataset público *Electric Vehicle Charging Sessions* do Kaggle, com ajuste fino sobre os dados reais à medida que são coletados; Isolation Forest e LOF não exigem rótulos prévios, o que torna a abordagem viável mesmo com histórico pequeno. |
+| **Estouro de escopo no front-end** | App do morador e painel do síndico compartilham a base de componentes e os mesmos endpoints, reduzindo duplicação. Eventuais cortes vão primeiro para o painel do síndico, que aceita ser mais cru no MVP, antes de tocar na experiência do morador. |
+
+### 8.6 Critérios de aceitação
+A Sprint 02 será considerada concluída quando os seis critérios abaixo forem satisfeitos:
+
+1. A fatura mensal exibe as cinco parcelas (energia verde, energia da rede, ociosidade, imposto e *overhead*) com memória de cálculo expandível campo a campo no app do morador.
+2. Uma sessão anômala injetada artificialmente (com kWh fisicamente impossível para a potência do equipamento) é bloqueada pelo detector de anomalia antes de entrar na fatura e aparece na fila de revisão do síndico.
+3. O app do morador permite reservar uma janela, consultar a fatura do mês corrente e visualizar a recomendação de janela ótima para as próximas 24 horas com o custo previsto.
+4. O painel do síndico exibe sessões em tempo real, permite configurar faixas tarifárias e *overhead* e gera o relatório mensal de arrecadação para fechamento com o condomínio.
+5. O vídeo pitch de 3 minutos exigido pela prova presencial está gravado e o repositório está documentado com README atualizado, diagrama de arquitetura e instruções de execução.
 
 ---
 ## 9. Fontes consultadas
